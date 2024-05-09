@@ -1,8 +1,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const autoprefixer = require("autoprefixer");
-
-("use strict");
+const { watch } = require("fs");
 
 module.exports = {
   mode: "development",
@@ -10,11 +9,18 @@ module.exports = {
   output: {
     filename: "main.js",
     path: path.resolve(__dirname, "dist"),
+    publicPath: "/",
   },
   devServer: {
-    static: path.resolve(__dirname, "dist"),
+    static: {
+      directory: path.resolve(__dirname, "dist"),
+    },
+    watchFiles: ["src/*.html"],
     port: 8080,
     hot: true,
+    devMiddleware: {
+      publicPath: "/",
+    },
   },
   plugins: [new HtmlWebpackPlugin({ template: "./src/index.html" })],
   module: {
@@ -22,16 +28,9 @@ module.exports = {
       {
         test: /\.(scss)$/,
         use: [
+          { loader: "style-loader" },
+          { loader: "css-loader" },
           {
-            // Adds CSS to the DOM by injecting a `<style>` tag
-            loader: "style-loader",
-          },
-          {
-            // Interprets `@import` and `url()` like `import/require()` and will resolve them
-            loader: "css-loader",
-          },
-          {
-            // Loader for webpack to process CSS with PostCSS
             loader: "postcss-loader",
             options: {
               postcssOptions: {
@@ -39,10 +38,7 @@ module.exports = {
               },
             },
           },
-          {
-            // Loads a SASS/SCSS file and compiles it to CSS
-            loader: "sass-loader",
-          },
+          { loader: "sass-loader" },
         ],
       },
       {
